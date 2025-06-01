@@ -34,6 +34,9 @@
     canvas.style.height = "100vh";
 
     let scrollYInput;
+    let goToWWInput;
+    let goToMathInput;
+    let ButtonBackInput;
 
     const riveInstance = new rive.Rive({
       src: "ballar.riv",
@@ -59,11 +62,25 @@
           console.warn("❗️ Input 'Size' не найден в State Machine 1");
         }
 
-        // Подключаем scrollY input
+        // Находим ScrollY input
         scrollYInput = inputs.find(i => i.name === "ScrollY");
         if (!scrollYInput) {
           console.warn("❗️ Input 'ScrollY' не найден в State Machine 1");
         }
+
+        ButtonBackInput = inputs.find(i => i.name === "ButtonBack");
+
+        goToMathInput = inputs.find(i => i.name === "goToMath");
+        
+
+        // Находим флаг GoToWW, который будет устанавливаться из Trigger
+        goToWWInput = inputs.find(i => i.name === "GoToWW");
+        if (!goToWWInput) {
+          console.warn("❗️ Input 'GoToWW' не найден в State Machine 1");
+        }
+
+        // Запускаем слежение за GoToWW
+        monitorTriggerFlag();
       },
       onError: (err) => console.error("❌ Ошибка Rive:", err)
     });
@@ -72,13 +89,63 @@
     window.addEventListener("wheel", (e) => {
       if (scrollYInput) {
         scrollYInput.value += e.deltaY * 0.3;
-        console.log("🖱 ScrollY =", scrollYInput.value);
-         // Ограничиваем диапазон от 0 до 2000
-    scrollYInput.value = Math.max(0, Math.min(2000, scrollYInput.value));
 
-    console.log("🖱 ScrollY =", scrollYInput.value);
+        // Ограничиваем диапазон от 0 до 2000
+        scrollYInput.value = Math.max(0, Math.min(4000, scrollYInput.value));
+
+        console.log("🖱 ScrollY =", scrollYInput.value);
       }
     });
+
+    // Плавное выполнение ScrollY при срабатывании Trigger
+    function monitorTriggerFlag() {
+  if (goToWWInput && scrollYInput && goToWWInput.value === true) {
+    console.log("🎯 Сработал Trigger GoToWW — прокручиваем до 1500");
+    goToWWInput.value = false;
+    animateScrollYTo(1341);
+  }
+
+  if (goToMathInput && scrollYInput && goToMathInput.value === true) {
+    console.log("🎯 Сработал Trigger goToMath — прокручиваем до 1000");
+    goToMathInput.value = false;
+    animateScrollYTo(2652);
+  }
+
+  if (ButtonBackInput && scrollYInput && ButtonBackInput.value === true) {
+    console.log("🎯 Сработал Trigger goToMath — прокручиваем до 1000");
+    ButtonBackInput.value = false;
+    animateScrollYTo(0);
+  }
+
+  requestAnimationFrame(monitorTriggerFlag);
+}
+
+    // Функция для плавного перехода к заданному значению ScrollY
+    function animateScrollYTo(targetValue) {
+      const duration = 600; // миллисекунд
+      const startValue = scrollYInput.value;
+      const startTime = performance.now();
+
+      function step(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const easedProgress = easeInOutQuad(progress);
+        scrollYInput.value = startValue + (targetValue - startValue) * easedProgress;
+
+        if (progress < 1) {
+          requestAnimationFrame(step);
+        } else {
+          console.log("✅ Прокрутка завершена");
+        }
+      }
+
+      requestAnimationFrame(step);
+    }
+
+    // Функция плавности (easing)
+    function easeInOutQuad(t) {
+      return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+    }
   </script>
 </body>
 </html>

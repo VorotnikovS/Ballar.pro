@@ -37,6 +37,9 @@
     let goToWWInput;
     let goToMathInput;
     let ButtonBackInput;
+    let goAppStoreWWInput;
+    let GoGooglePlayMathInput;
+    let GoAppStoreMathInput;
 
     const riveInstance = new rive.Rive({
       src: "ballar.riv",
@@ -71,11 +74,26 @@
         ButtonBackInput = inputs.find(i => i.name === "ButtonBack");
 
         goToMathInput = inputs.find(i => i.name === "goToMath");
+
+        goAppStoreWWInput = inputs.find(i => i.name === "GoAppStoreWW"); 
         
+        GoGooglePlayMathInput = inputs.find(i => i.name === "GoGooglePlayMath");
+
+        GoAppStoreMathInput = inputs.find(i => i.name === "GoAppStoreMath");
 
         // Находим флаг GoToWW, который будет устанавливаться из Trigger
         goToWWInput = inputs.find(i => i.name === "GoToWW");
         if (!goToWWInput) {
+          console.warn("❗️ Input 'GoToWW' не найден в State Machine 1");
+        }
+
+        GoGooglePlayMathInput = inputs.find(i => i.name === "GoGooglePlayMath");
+        if (!GoGooglePlayMathInput) {
+          console.warn("❗️ Input 'GoToWW' не найден в State Machine 1");
+        }
+
+        GoAppStoreMathInput = inputs.find(i => i.name === "GoAppStoreMath");
+        if (!GoAppStoreMathInput) {
           console.warn("❗️ Input 'GoToWW' не найден в State Machine 1");
         }
 
@@ -115,6 +133,24 @@
     console.log("🎯 Сработал Trigger goToMath — прокручиваем до 1000");
     ButtonBackInput.value = false;
     animateScrollYTo(0);
+  }
+
+  if (goAppStoreWWInput && goAppStoreWWInput.value === true) {
+    console.log("🌐 Открываем App Store WW");
+    goAppStoreWWInput.value = false;
+    window.open("https://apps.apple.com/ru/app/wake-the-world-my-map/id1529898421?l=en-GB", "_blank"); // ← Замени на свою ссылку
+  }
+
+  if (GoGooglePlayMathInput && GoGooglePlayMathInput.value === true) {
+    console.log("🌐 Открываем App Store WW");
+    GoGooglePlayMathInput.value = false;
+    window.open("", "_blank"); // ← Замени на свою ссылку
+  }
+
+  if (GoAppStoreMathInput && GoAppStoreMathInput.value === true) {
+    console.log("🌐 Открываем App Store WW");
+    GoAppStoreMathInput.value = false;
+    window.open("https://apps.apple.com/us/app/math-game-mental-mastery/id6745556295", "_blank"); // ← Замени на свою ссылку
   }
 
   requestAnimationFrame(monitorTriggerFlag);

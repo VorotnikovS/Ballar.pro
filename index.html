@@ -3,7 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <title>Ballar — Rive Site</title>
-  <script src="https://unpkg.com/@rive-app/webgl"></script>
+  <script>
+    const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const script = document.createElement("script");
+    script.src = isMobile
+      ? "https://unpkg.com/@rive-app/canvas"
+      : "https://unpkg.com/@rive-app/webgl";
+    script.onload = () => startRive(isMobile);
+    document.head.appendChild(script);
+  </script>
   <style>
     html, body {
       margin: 0;
@@ -23,12 +31,10 @@
 </head>
 <body>
   <canvas id="rive-canvas"></canvas>
-
   <script>
+  function startRive(isMobile) {
     const canvas = document.getElementById("rive-canvas");
-    const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     const riveFile = isMobile ? "ballar_mobile.riv" : "ballar.riv";
-
     const dpr = isMobile ? 1 : window.devicePixelRatio || 1;
     canvas.width = window.innerWidth * dpr;
     canvas.height = window.innerHeight * dpr;

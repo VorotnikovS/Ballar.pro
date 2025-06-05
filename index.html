@@ -29,7 +29,7 @@
     const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     const riveFile = isMobile ? "ballar_mobile.riv" : "ballar.riv";
 
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = isMobile ? 1 : window.devicePixelRatio || 1;
     canvas.width = window.innerWidth * dpr;
     canvas.height = window.innerHeight * dpr;
     canvas.style.width = "100vw";

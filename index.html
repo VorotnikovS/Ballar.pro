@@ -76,23 +76,38 @@
 
     // 📱 Мобильная логика: свайпы
     if (isMobile) {
-      let lastY = null;
+  let lastY = null;
+  let scrollVelocity = 0;
+  const damping = 0.9; // 0.9 — сильное затухание, 0.95 — более плавное
 
-      window.addEventListener("touchmove", (e) => {
-        if (!scrollYInput) return;
-        if (lastY === null) {
-          lastY = e.touches[0].clientY;
-          return;
-        }
-        const deltaY = lastY - e.touches[0].clientY;
-        scrollYInput.value += deltaY * 1.5;
-        scrollYInput.value = Math.max(0, Math.min(4000, scrollYInput.value));
-        lastY = e.touches[0].clientY;
-      });
+  window.addEventListener("touchmove", (e) => {
+    if (!scrollYInput) return;
+    if (lastY === null) {
+      lastY = e.touches[0].clientY;
+      return;
+    }
 
-      window.addEventListener("touchend", () => {
-        lastY = null;
-      });
+    const deltaY = lastY - e.touches[0].clientY;
+    scrollVelocity = deltaY * 1.5; // сила "удара" свайпа
+    lastY = e.touches[0].clientY;
+  });
+
+  window.addEventListener("touchend", () => {
+    lastY = null;
+  });
+
+  // Цикл, который добавляет инерцию прокрутке
+  function scrollLoopMobile() {
+    if (scrollYInput && Math.abs(scrollVelocity) > 0.1) {
+      scrollYInput.value += scrollVelocity;
+      scrollYInput.value = Math.max(0, Math.min(4000, scrollYInput.value));
+      scrollVelocity *= damping;
+    }
+    requestAnimationFrame(scrollLoopMobile);
+  }
+
+  requestAnimationFrame(scrollLoopMobile);
+
 
     // 🖥 Десктопная логика: колесо мыши
     } else {

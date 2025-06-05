@@ -82,7 +82,7 @@
           }
           const deltaY = lastY - e.touches[0].clientY;
           velocityY = deltaY * 0.7;
-          velocityY = Math.max(-100, Math.min(100, velocityY)); // ограничение скорости
+          velocityY = Math.max(-30, Math.min(30, velocityY));
           scrollYInput.value += velocityY;
           scrollYInput.value = Math.max(0, Math.min(4000, scrollYInput.value));
           lastY = e.touches[0].clientY;
@@ -143,7 +143,7 @@
         if (Math.abs(velocityY) > 0.1) {
           scrollYInput.value += velocityY;
           scrollYInput.value = Math.max(0, Math.min(4000, scrollYInput.value));
-          velocityY *= 0.92;
+          velocityY *= 0.95;
         } else {
           velocityY = 0;
         }

@@ -26,6 +26,8 @@
 
   <script>
     const canvas = document.getElementById("rive-canvas");
+    const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const riveFile = isMobile ? "ballar_mobile.riv" : "ballar.riv";
 
     const dpr = window.devicePixelRatio || 1;
     canvas.width = window.innerWidth * dpr;
@@ -42,7 +44,7 @@
     let GoAppStoreMathInput;
 
     const riveInstance = new rive.Rive({
-      src: "ballar.riv",
+      src: riveFile,
       canvas: canvas,
       autoplay: true,
       artboard: "Ballar",
@@ -52,133 +54,112 @@
         alignment: rive.Alignment.TopCenter
       }),
       onLoad: () => {
-        console.log("✅ Rive animation loaded.");
+        console.log("✅ Загружен файл:", riveFile);
 
         const inputs = riveInstance.stateMachineInputs("State Machine 1");
 
-        // Передаём ширину экрана в input 'Size'
         const sizeInput = inputs.find(i => i.name === "Size");
-        if (sizeInput) {
-          sizeInput.value = window.innerWidth;
-          console.log("📏 Передано в Rive Size:", sizeInput.value);
-        } else {
-          console.warn("❗️ Input 'Size' не найден в State Machine 1");
-        }
+        if (sizeInput) sizeInput.value = window.innerWidth;
 
-        // Находим ScrollY input
         scrollYInput = inputs.find(i => i.name === "ScrollY");
-        if (!scrollYInput) {
-          console.warn("❗️ Input 'ScrollY' не найден в State Machine 1");
-        }
-
-        ButtonBackInput = inputs.find(i => i.name === "ButtonBack");
-
-        goToMathInput = inputs.find(i => i.name === "goToMath");
-
-        goAppStoreWWInput = inputs.find(i => i.name === "GoAppStoreWW"); 
-        
-        GoGooglePlayMathInput = inputs.find(i => i.name === "GoGooglePlayMath");
-
-        GoAppStoreMathInput = inputs.find(i => i.name === "GoAppStoreMath");
-
-        // Находим флаг GoToWW, который будет устанавливаться из Trigger
         goToWWInput = inputs.find(i => i.name === "GoToWW");
-        if (!goToWWInput) {
-          console.warn("❗️ Input 'GoToWW' не найден в State Machine 1");
-        }
-
+        goToMathInput = inputs.find(i => i.name === "goToMath");
+        ButtonBackInput = inputs.find(i => i.name === "ButtonBack");
+        goAppStoreWWInput = inputs.find(i => i.name === "GoAppStoreWW");
         GoGooglePlayMathInput = inputs.find(i => i.name === "GoGooglePlayMath");
-        if (!GoGooglePlayMathInput) {
-          console.warn("❗️ Input 'GoToWW' не найден в State Machine 1");
-        }
-
         GoAppStoreMathInput = inputs.find(i => i.name === "GoAppStoreMath");
-        if (!GoAppStoreMathInput) {
-          console.warn("❗️ Input 'GoToWW' не найден в State Machine 1");
-        }
 
-        // Запускаем слежение за GoToWW
         monitorTriggerFlag();
       },
       onError: (err) => console.error("❌ Ошибка Rive:", err)
     });
 
-    // Прокрутка колесиком мыши
-    window.addEventListener("wheel", (e) => {
-      if (scrollYInput) {
-        scrollYInput.value += e.deltaY * 0.3;
+    // 📱 Мобильная логика: свайпы
+    if (isMobile) {
+      let lastY = null;
 
-        // Ограничиваем диапазон от 0 до 2000
+      window.addEventListener("touchmove", (e) => {
+        if (!scrollYInput) return;
+        if (lastY === null) {
+          lastY = e.touches[0].clientY;
+          return;
+        }
+        const deltaY = lastY - e.touches[0].clientY;
+        scrollYInput.value += deltaY * 1.5;
         scrollYInput.value = Math.max(0, Math.min(4000, scrollYInput.value));
+        lastY = e.touches[0].clientY;
+      });
 
-        console.log("🖱 ScrollY =", scrollYInput.value);
-      }
-    });
+      window.addEventListener("touchend", () => {
+        lastY = null;
+      });
 
-    // Плавное выполнение ScrollY при срабатывании Trigger
+    // 🖥 Десктопная логика: колесо мыши
+    } else {
+      window.addEventListener("wheel", (e) => {
+        if (!scrollYInput) return;
+        scrollYInput.value += e.deltaY * 0.3;
+        scrollYInput.value = Math.max(0, Math.min(4000, scrollYInput.value));
+      });
+    }
+
+    // 🎯 Обработка триггеров
     function monitorTriggerFlag() {
-  if (goToWWInput && scrollYInput && goToWWInput.value === true) {
-    console.log("🎯 Сработал Trigger GoToWW — прокручиваем до 1500");
-    goToWWInput.value = false;
-    animateScrollYTo(1285);
-  }
+      if (goToWWInput?.value) {
+        console.log("🎯 Trigger GoToWW");
+        goToWWInput.value = false;
+        animateScrollYTo(1285);
+      }
 
-  if (goToMathInput && scrollYInput && goToMathInput.value === true) {
-    console.log("🎯 Сработал Trigger goToMath — прокручиваем до 1000");
-    goToMathInput.value = false;
-    animateScrollYTo(2474);
-  }
+      if (goToMathInput?.value) {
+        console.log("🎯 Trigger goToMath");
+        goToMathInput.value = false;
+        animateScrollYTo(2474);
+      }
 
-  if (ButtonBackInput && scrollYInput && ButtonBackInput.value === true) {
-    console.log("🎯 Сработал Trigger goToMath — прокручиваем до 1000");
-    ButtonBackInput.value = false;
-    animateScrollYTo(0);
-  }
+      if (ButtonBackInput?.value) {
+        console.log("🔙 Back");
+        ButtonBackInput.value = false;
+        animateScrollYTo(0);
+      }
 
-  if (goAppStoreWWInput && goAppStoreWWInput.value === true) {
-    console.log("🌐 Открываем App Store WW");
-    goAppStoreWWInput.value = false;
-    window.open("https://apps.apple.com/ru/app/wake-the-world-my-map/id1529898421?l=en-GB", "_blank"); // ← Замени на свою ссылку
-  }
+      if (goAppStoreWWInput?.value) {
+        console.log("🌐 Переход на App Store WW");
+        goAppStoreWWInput.value = false;
+        window.open("https://apps.apple.com/ru/app/wake-the-world-my-map/id1529898421?l=en-GB", "_blank");
+      }
 
-  if (GoGooglePlayMathInput && GoGooglePlayMathInput.value === true) {
-    console.log("🌐 Открываем App Store WW");
-    GoGooglePlayMathInput.value = false;
-    window.open("", "_blank"); // ← Замени на свою ссылку
-  }
+      if (GoGooglePlayMathInput?.value) {
+        console.log("🌐 Переход на Google Play");
+        GoGooglePlayMathInput.value = false;
+        window.open("", "_blank");
+      }
 
-  if (GoAppStoreMathInput && GoAppStoreMathInput.value === true) {
-    console.log("🌐 Открываем App Store WW");
-    GoAppStoreMathInput.value = false;
-    window.open("https://apps.apple.com/us/app/math-game-mental-mastery/id6745556295", "_blank"); // ← Замени на свою ссылку
-  }
+      if (GoAppStoreMathInput?.value) {
+        console.log("🌐 Переход на App Store Math");
+        GoAppStoreMathInput.value = false;
+        window.open("https://apps.apple.com/us/app/math-game-mental-mastery/id6745556295", "_blank");
+      }
 
-  requestAnimationFrame(monitorTriggerFlag);
-}
+      requestAnimationFrame(monitorTriggerFlag);
+    }
 
-    // Функция для плавного перехода к заданному значению ScrollY
     function animateScrollYTo(targetValue) {
-      const duration = 600; // миллисекунд
+      const duration = 600;
       const startValue = scrollYInput.value;
       const startTime = performance.now();
 
       function step(currentTime) {
         const elapsed = currentTime - startTime;
         const progress = Math.min(elapsed / duration, 1);
-        const easedProgress = easeInOutQuad(progress);
-        scrollYInput.value = startValue + (targetValue - startValue) * easedProgress;
-
-        if (progress < 1) {
-          requestAnimationFrame(step);
-        } else {
-          console.log("✅ Прокрутка завершена");
-        }
+        const eased = easeInOutQuad(progress);
+        scrollYInput.value = startValue + (targetValue - startValue) * eased;
+        if (progress < 1) requestAnimationFrame(step);
       }
 
       requestAnimationFrame(step);
     }
 
-    // Функция плавности (easing)
     function easeInOutQuad(t) {
       return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
     }

@@ -42,6 +42,9 @@
     let goAppStoreWWInput;
     let GoGooglePlayMathInput;
     let GoAppStoreMathInput;
+    let velocityY = 0;
+    let isTouching = false;
+
 
     const riveInstance = new rive.Rive({
       src: riveFile,
@@ -85,13 +88,16 @@
           return;
         }
         const deltaY = lastY - e.touches[0].clientY;
-        scrollYInput.value += deltaY * 1.5;
+        velocityY = deltaY * 2;
+        scrollYInput.value += velocityY;
         scrollYInput.value = Math.max(0, Math.min(4000, scrollYInput.value));
         lastY = e.touches[0].clientY;
+        isTouching = true;
       });
 
       window.addEventListener("touchend", () => {
         lastY = null;
+        isTouching = false;
       });
 
     // 🖥 Десктопная логика: колесо мыши
@@ -140,9 +146,24 @@
         GoAppStoreMathInput.value = false;
         window.open("https://apps.apple.com/us/app/math-game-mental-mastery/id6745556295", "_blank");
       }
+      
+      updateInertia();
 
       requestAnimationFrame(monitorTriggerFlag);
     }
+
+    function updateInertia() {
+      if (!scrollYInput || isTouching) return;
+
+      if (Math.abs(velocityY) > 0.1) {
+        scrollYInput.value += velocityY;
+        scrollYInput.value = Math.max(0, Math.min(4000, scrollYInput.value));
+        velocityY *= 0.95; // коэффициент замедления (0.90–0.98 = плавнее)
+      } else {
+        velocityY = 0;
+      }
+    }
+
 
     function animateScrollYTo(targetValue) {
       const duration = 600;

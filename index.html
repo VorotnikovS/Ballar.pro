@@ -149,7 +149,10 @@
       
       updateInertia();
 
-      requestAnimationFrame(monitorTriggerFlag);
+      if (Math.abs(velocityY) > 0.1 || goToWWInput?.value || goToMathInput?.value || ButtonBackInput?.value) {
+        requestAnimationFrame(monitorTriggerFlag);
+      }
+
     }
 
     function updateInertia() {

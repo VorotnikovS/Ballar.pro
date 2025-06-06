@@ -121,17 +121,32 @@
 
         if (goAppStoreWWInput?.value) {
           goAppStoreWWInput.value = false;
-          window.open("https://apps.apple.com/ru/app/wake-the-world-my-map/id1529898421?l=en-GB", "_blank");
+          const link = "https://apps.apple.com/ru/app/wake-the-world-my-map/id1529898421?l=en-GB";
+          if (isMobile) {
+            window.location.href = link;
+          } else {
+            window.open(link, "_blank");
+          }
         }
-
+        
         if (GoGooglePlayMathInput?.value) {
           GoGooglePlayMathInput.value = false;
-          window.open("", "_blank");
+          const link = "https://play.google.com/store/apps/details?id=com.example.mathgame"; // <-- укажи здесь свой реальный URL
+          if (isMobile) {
+            window.location.href = link;
+          } else {
+            window.open(link, "_blank");
+          }
         }
-
+        
         if (GoAppStoreMathInput?.value) {
           GoAppStoreMathInput.value = false;
-          window.open("https://apps.apple.com/us/app/math-game-mental-mastery/id6745556295", "_blank");
+          const link = "https://apps.apple.com/us/app/math-game-mental-mastery/id6745556295";
+          if (isMobile) {
+            window.location.href = link;
+          } else {
+            window.open(link, "_blank");
+          }
         }
 
         updateInertia();

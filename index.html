@@ -104,13 +104,15 @@
       function monitorTriggerFlag() {
         if (goToWWInput?.value) {
           goToWWInput.value = false;
-          animateScrollYTo(1285);
+          const scrollTarget = isMobile ? 1320 : 1285;
+          animateScrollYTo(scrollTarget);
         }
 
         if (goToMathInput?.value) {
           goToMathInput.value = false;
-          animateScrollYTo(2474);
-        }
+          const scrollTarget = isMobile ? 2572 : 2474;
+          animateScrollYTo(scrollTarget);
+                  }
 
         if (ButtonBackInput?.value) {
           ButtonBackInput.value = false;
